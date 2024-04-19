@@ -1,0 +1,139 @@
+Microsoft (R) Macro Assembler Version 14.39.33521.0	    04/19/24 14:50:59
+example.asm						     Page 1 - 1
+
+
+				; Example assembly language program -- adds two numbers
+				; Author:  R. Detmer
+				; Date:    1/2008
+
+				.586
+				.MODEL FLAT
+
+				INCLUDE io.h            ; header file for input/output
+			      C ; IO.H -- header file for I/O macros (listing suppressed)
+			      C .NOLIST      ; turn off listing
+			      C .LIST        ; begin listing
+			      C 
+
+				.STACK 4096
+
+ 00000000			.DATA
+ 00000000 00000006		n DWORD 6
+ 00000004 00000002		r DWORD 2
+ 00000008 00000000		result DWORD ?
+
+ 00000000			.CODE
+ 00000000			_MainProc PROC
+
+ 00000000  A1 00000000 R	mov EAX, n
+ 00000005  8B 1D 00000004 R	mov EBX, r
+
+ 0000000B  E8 00000000		call MyPerm
+
+ 00000010			MyPerm PROC
+ 00000010  55			push EBP		; begin stack
+ 00000011  8B EC		mov EBP, ESP	; getting stack itself
+ 00000013  83 EC 04		sub ESP, 4
+ 00000016  53			push EBX		; pushes r [EBP + 8]
+ 00000017  50			push EAX		; pushes n [EBP + 12]
+ 00000018  E8 00000018		call myFac		; does factorial for n
+ 0000001D  89 45 FC		mov DWORD PTR [EBP - 4], EAX
+
+ 00000020  58			pop EAX			; gives us back n
+ 00000021  5B			pop EBX
+ 00000022  2B C3		sub EAX, EBX	; getting (n - r) into EAX
+ 00000024  E8 0000000C		call myFac		; doing factorial on EAX
+
+
+ 00000029  8B D8		mov EBX, EAX						; value of (n - r)! into EBX
+ 0000002B  8B 45 FC		mov EAX, DWORD PTR [EBP - 4]		; moving n! back into EAX
+ 0000002E  F7 F3		div EBX								; dividing n! = EAX with (n - r)! = EBX
+
+ 00000030  5B			pop EBX
+ 00000031  8B EC		mov EBP, ESP
+ 00000033  5D			pop EBP
+ 00000034  C3			ret
+
+ 00000035			MyPerm ENDP
+
+
+ 00000035			myFac PROC
+ 00000035  83 F8 01		cmp EAX, 1
+ 00000038  7E 0A		jle FIN			; goes to end if smaller than 1
+ 0000003A  50			push EAX		; pushes new value of n - 1
+ 0000003B  48			dec EAX			; n - 1
+ 0000003C  E8 FFFFFFF4		call myFac		; recursion call
+ 00000041  5B			pop EBX			
+ 00000042  F7 E3		mul EBX
+ 00000044			FIN:
+ 00000044  C3			ret
+ 00000045			myFac ENDP
+
+
+
+ 00000045			_MainProc ENDP
+				END                             ; end of source code
+
+Microsoft (R) Macro Assembler Version 14.39.33521.0	    04/19/24 14:50:59
+example.asm						     Symbols 2 - 1
+
+
+
+
+Macros:
+
+                N a m e                 Type
+
+atod . . . . . . . . . . . . . .	Proc
+atow . . . . . . . . . . . . . .	Proc
+dtoa . . . . . . . . . . . . . .	Proc
+input  . . . . . . . . . . . . .	Proc
+output . . . . . . . . . . . . .	Proc
+wtoa . . . . . . . . . . . . . .	Proc
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000000C Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000045 Para	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+MyPerm . . . . . . . . . . . . .	P Near	 00000010 _TEXT	Length= 00000025 Public
+_MainProc  . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000045 Public
+myFac  . . . . . . . . . . . . .	P Near	 00000035 _TEXT	Length= 00000010 Public
+  FIN  . . . . . . . . . . . . .	L Near	 00000044 _TEXT	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000000h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+_getInput  . . . . . . . . . . .	L Near	 00000000 FLAT	External
+_showOutput  . . . . . . . . . .	L Near	 00000000 FLAT	External
+atodproc . . . . . . . . . . . .	L Near	 00000000 FLAT	External
+atowproc . . . . . . . . . . . .	L Near	 00000000 FLAT	External
+dtoaproc . . . . . . . . . . . .	L Near	 00000000 FLAT	External
+n  . . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+result . . . . . . . . . . . . .	DWord	 00000008 _DATA	
+r  . . . . . . . . . . . . . . .	DWord	 00000004 _DATA	
+wtoaproc . . . . . . . . . . . .	L Near	 00000000 FLAT	External
+
+	   0 Warnings
+	   0 Errors
